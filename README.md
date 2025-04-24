@@ -1,0 +1,1 @@
+This database is designed to manage a video rental store. Customers rent movies and/or games and are obliged to return them by the specified due date. If they fail to return the items on time, a late fee will be charged.
