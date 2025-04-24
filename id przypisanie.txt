@@ -1,0 +1,202 @@
+600 vhs, dvd, bd 
+601      dvd, bd
+602      dvd, bd, bd3
+603 vhs, dvd, bd, bd3 
+604 vhs, dvd
+______________________________________________
+
+500 napisy,         dubbing
+501 napisy, lektor
+502 napisy, lektor, dubbing
+503        lektor
+504        lektor, dubbing
+505 nic
+506 napisy
+
+_________________________________________________
+700
+Warner Bros. Pictures
+Stany Zjednoczone
+Burbank
+
+701
+20th Century Fox
+Stany Zjednoczone
+Century City
+
+702
+Universal Studios Entertainment
+Stany Zjednoczone
+Universal City 
+
+__________________________________________________
+
+400
+Chris
+Columbus
+
+401
+Lana
+Wachowski
+
+402
+Christopher
+Nolan
+
+403
+Peter
+Jackson
+
+404
+James
+Cameron
+
+405
+Steven
+Spielberg
+
+insert into Film(id_filmu, tytul, gatunek, rok, kolor, id_rezysera, jezyk_id, id_wytworni, nosnik_id) values(200, '', '', to_date('2002','YYYY'), 'tak', 400, 500, 700, 600); 
+
+vhs,dvd,bd/napisy, dubbing
+200
+Harry Potter i Komnata Tajemnic 
+Przygodowy
+2002
+tak
+Chris Columbus 400
+500
+Warner Bros. Pictures 700
+600
+
+vhs,dvd,bd/napisy,lektor 
+201
+Matrix
+Sci-Fi
+1999
+tak
+Lana Wachowski 401
+501
+Warner Bros. Pictures 700
+600
+
+dvd,bd/ napisy,lektor
+202
+Interstellar
+Sci-Fi
+2014
+tak
+Christopher Nolan 402
+501
+Warner Bros. Pictures 700
+601
+
+dvd,bd,bd3/ napisy,lektor, dubbing
+203
+Hobbit: Niezwykła Podroz
+Fantasy
+2012
+tak
+Peter Jackson 403
+502
+Warner Bros. Pictures 700
+602
+
+dvd,bd, bd3/ napisy, lektor
+204
+Avatar
+Sci-Fi
+2009
+tak
+James Cameron 404
+503
+20th Century Fox 701
+602
+
+vhs,dvd,bd/ napisy, lektor
+205
+Titanic
+Melodramat
+1997
+tak
+James Cameron 404
+501
+20th Century Fox 701
+600
+
+vhs, dvd, bd/ lektor
+206
+Kevin sam w domu
+Komedia
+1990
+tak
+Chris Columbus 400
+503
+20th Century Fox 701
+600
+
+vhs,dvd, bd, bd3/ napisy, lektor
+207
+Park Jurajski
+Przygodowy
+1993
+tak
+Steven Spielberg 405
+501
+Universal Studios Entertainment 702
+603
+
+vhs, dvd/ lektor, dubbing
+208
+E.T.
+Sci-Fi
+1982
+tak
+Steven Spielberg 405
+504
+Universal Studios Entertainment 702
+604
+
+vhs,dvd/ nic
+209
+Lista Schindlera
+Dramat
+1993
+nie
+Steven Spielberg 405
+505
+Universal Studios Entertainment 702
+604
+_______________________________________________
+gra(id, tytul, gatunek, rok, platforma, wydawca)
+
+napisy
+300
+Assassin's Creed II
+Przygodowa
+2009
+PC
+Ubisoft
+
+napisy
+301
+Grand Theft Auto: San Andreas
+Akcja
+2004
+PC
+Rockstar Games
+
+napisy, dubbing
+302
+Heavy Rain
+Przygodowa
+2010
+PS3
+Sony Computer Entertainment
+
+napisy
+303
+The Sims 3
+Symulator
+2009
+Xbox 360
+Electronic Arts

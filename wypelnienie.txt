@@ -1,0 +1,342 @@
+CREATE TABLE film (
+    id_filmu    VARCHAR2(40) NOT NULL,
+    gatunek     VARCHAR2(30),
+    rok         NUMBER(4),
+    kolor       VARCHAR2(3),
+    id_rezysera NUMBER(3) NOT NULL,
+    wersja_id   NUMBER(3) NOT NULL,
+    id_wytworni VARCHAR2(40) NOT NULL,
+    nosnik_id   NUMBER(3) NOT NULL
+);
+
+ALTER TABLE film
+    ADD CHECK ( kolor IN ( 'nie', 'tak' ) );
+
+ALTER TABLE film ADD CONSTRAINT film_pk PRIMARY KEY ( id_filmu );
+
+CREATE TABLE gra (
+    id_gry    VARCHAR2(40) NOT NULL,
+    gatunek   VARCHAR2(30),
+    rok       DATE,
+    platforma VARCHAR2(30),
+    wydawca   VARCHAR2(40),
+    wersja_id NUMBER(3) NOT NULL
+);
+
+ALTER TABLE gra ADD CONSTRAINT gra_pk PRIMARY KEY ( id_gry );
+
+CREATE TABLE klient (
+    id_klienta NUMBER(3) NOT NULL,
+    imie       VARCHAR2(30),
+    nazwisko   VARCHAR2(30),
+    tel        NUMBER(9)
+);
+
+ALTER TABLE klient ADD CONSTRAINT klient_pk PRIMARY KEY ( id_klienta );
+
+CREATE TABLE nosnik (
+    nosnik_id NUMBER(3) NOT NULL,
+    vhs       VARCHAR2(3),
+    dvd       VARCHAR2(3),
+    bd        VARCHAR2(3),
+    bd_3d     VARCHAR2(3)
+);
+
+ALTER TABLE nosnik
+    ADD CHECK ( vhs IN ( 'nie', 'tak' ) );
+
+ALTER TABLE nosnik
+    ADD CHECK ( dvd IN ( 'nie', 'tak' ) );
+
+ALTER TABLE nosnik
+    ADD CHECK ( bd IN ( 'nie', 'tak' ) );
+
+ALTER TABLE nosnik
+    ADD CHECK ( bd_3d IN ( 'nie', 'tak' ) );
+
+ALTER TABLE nosnik ADD CONSTRAINT nosnik_pk PRIMARY KEY ( nosnik_id );
+
+CREATE TABLE oplata (
+    id_platnosci NUMBER(3) NOT NULL,
+    kwota        NUMBER(3),
+    kara         NUMBER(3, 1),
+    platnosc     VARCHAR2(10)
+);
+
+ALTER TABLE oplata
+    ADD CHECK ( platnosc IN ( 'gotowka', 'karta' ) );
+
+ALTER TABLE oplata ADD CONSTRAINT oplata_pk PRIMARY KEY ( id_platnosci );
+
+CREATE TABLE rezyser (
+    id_rezysera NUMBER(3) NOT NULL,
+    imie        VARCHAR2(30),
+    nazwisko    VARCHAR2(30)
+);
+
+ALTER TABLE rezyser ADD CONSTRAINT rezyser_pk PRIMARY KEY ( id_rezysera );
+
+CREATE TABLE wersja (
+    wersja_id NUMBER(3) NOT NULL,
+    napisy    VARCHAR2(3),
+    lektor    VARCHAR2(3),
+    dubbing   VARCHAR2(3)
+);
+
+ALTER TABLE wersja
+    ADD CHECK ( napisy IN ( 'nie', 'tak' ) );
+
+ALTER TABLE wersja
+    ADD CHECK ( lektor IN ( 'nie', 'tak' ) );
+
+ALTER TABLE wersja
+    ADD CHECK ( dubbing IN ( 'nie', 'tak' ) );
+
+ALTER TABLE wersja ADD CONSTRAINT wersja_pk PRIMARY KEY ( wersja_id );
+
+CREATE TABLE wypozyczenie (
+    id_wypozyczenia   NUMBER(3) NOT NULL,
+    data_wypozyczenia DATE,
+    ile_dni           NUMBER(2),
+    data_zwrotu       DATE,
+    id_gry            VARCHAR2(40),
+    id_filmu          VARCHAR2(40),
+    id_platnosci      NUMBER(3) NOT NULL,
+    id_klienta        NUMBER(3) NOT NULL
+);
+
+CREATE UNIQUE INDEX wypozyczenie__idx ON
+    wypozyczenie (
+        id_platnosci
+    ASC );
+
+ALTER TABLE wypozyczenie ADD CONSTRAINT wyp_pk PRIMARY KEY ( id_wypozyczenia );
+
+CREATE TABLE wytwornia (
+    id_wytworni VARCHAR2(40) NOT NULL,
+    panstwo     VARCHAR2(30),
+    siedziba    VARCHAR2(30)
+);
+
+ALTER TABLE wytwornia ADD CONSTRAINT wytwornia_pk PRIMARY KEY ( id_wytworni );
+
+ALTER TABLE wypozyczenie
+    ADD CONSTRAINT film_fk FOREIGN KEY ( id_filmu )
+        REFERENCES film ( id_filmu );
+
+ALTER TABLE film
+    ADD CONSTRAINT fwersja_fk FOREIGN KEY ( wersja_id )
+        REFERENCES wersja ( wersja_id );
+
+ALTER TABLE wypozyczenie
+    ADD CONSTRAINT gra_fk FOREIGN KEY ( id_gry )
+        REFERENCES gra ( id_gry );
+
+ALTER TABLE gra
+    ADD CONSTRAINT gwersja_fk FOREIGN KEY ( wersja_id )
+        REFERENCES wersja ( wersja_id );
+
+ALTER TABLE wypozyczenie
+    ADD CONSTRAINT klient_fk FOREIGN KEY ( id_klienta )
+        REFERENCES klient ( id_klienta );
+
+ALTER TABLE film
+    ADD CONSTRAINT nosnik_fk FOREIGN KEY ( nosnik_id )
+        REFERENCES nosnik ( nosnik_id );
+
+ALTER TABLE wypozyczenie
+    ADD CONSTRAINT oplata_fk FOREIGN KEY ( id_platnosci )
+        REFERENCES oplata ( id_platnosci );
+
+ALTER TABLE film
+    ADD CONSTRAINT rezyser_fk FOREIGN KEY ( id_rezysera )
+        REFERENCES rezyser ( id_rezysera );
+
+ALTER TABLE film
+    ADD CONSTRAINT wytwornia_fk FOREIGN KEY ( id_wytworni )
+        REFERENCES wytwornia ( id_wytworni );
+
+
+create sequence sekw_wyp
+    start with 10
+    increment by 1
+    nocycle
+    nocache;
+
+create or replace trigger wyzw_wyp
+after insert on Wypozyczenie
+begin
+dbms_output.put_line('Zarejestrowano nowe wypozyczenie.');
+end;
+
+create or replace trigger wyzw_przedl
+after update of ile_dni, data_zwrotu  on Wypozyczenie
+for each row
+begin
+dbms_output.put_line('Klient przedluzyl termin zwrotu.');
+end;
+
+create or replace trigger wyzw_zwr
+after delete on Wypozyczenie
+for each row
+begin
+dbms_output.put_line('Klient dokonał zwrotu wypozyczonego tytulu.');
+end;
+
+
+insert into Klient(id_klienta, imie, nazwisko, tel) values(1, 'Carl', 'Johnson', 457713566);
+insert into Klient(id_klienta, imie, nazwisko, tel) values(2, 'Joel', 'Miller', 211312414);
+insert into Klient(id_klienta, imie, nazwisko, tel) values(3, 'Adaline', 'Bowman', 785456335); 
+insert into Klient(id_klienta, imie, nazwisko, tel) values(4, 'Sean', 'Diaz', 454551534);
+insert into Klient(id_klienta, imie, nazwisko, tel) values(5, 'Gus', 'Fring', 539658532);
+insert into Klient(id_klienta, imie, nazwisko, tel) values(6, 'Ellie', 'Williams', 796744888);
+insert into Klient(id_klienta, imie, nazwisko, tel) values(7, 'Yarny', 'Ravel', 458468819);
+insert into Klient(id_klienta, imie, nazwisko, tel) values(8, 'Ezio', 'Auditore', 578469579);
+
+insert into Oplata(id_platnosci, kwota, kara, platnosc) values(100, 15, 0.5, 'gotowka');
+insert into Oplata(id_platnosci, kwota, kara, platnosc) values(101, 25, 0, 'gotowka');
+insert into Oplata(id_platnosci, kwota, kara, platnosc) values(102, 20, 0, 'karta');
+insert into Oplata(id_platnosci, kwota, kara, platnosc) values(103, 25, 0, 'gotowka');
+insert into Oplata(id_platnosci, kwota, kara, platnosc) values(104, 20, 0, 'karta');
+insert into Oplata(id_platnosci, kwota, kara, platnosc) values(105, 35, 0, 'karta');
+insert into Oplata(id_platnosci, kwota, kara, platnosc) values(106, 10, 5, 'gotowka');
+insert into Oplata(id_platnosci, kwota, kara, platnosc) values(107, 15, 50, 'gotowka');
+insert into Oplata(id_platnosci, kwota, kara, platnosc) values(108, 45, 0, 'gotowka');
+insert into Oplata(id_platnosci, kwota, kara, platnosc) values(109, 55, 0, 'gotowka');
+
+insert into Wersja(wersja_id, napisy, lektor, dubbing) values (500, 'tak', 'nie', 'tak');
+insert into Wersja(wersja_id, napisy, lektor, dubbing) values (501, 'tak', 'tak', 'nie');
+insert into Wersja(wersja_id, napisy, lektor, dubbing) values (502, 'tak', 'tak', 'tak');
+insert into Wersja(wersja_id, napisy, lektor, dubbing) values (503, 'nie', 'tak', 'nie');
+insert into Wersja(wersja_id, napisy, lektor, dubbing) values (504, 'nie', 'tak', 'tak');
+insert into Wersja(wersja_id, napisy, lektor, dubbing) values (505, 'nie', 'nie', 'nie');
+insert into Wersja(wersja_id, napisy, lektor, dubbing) values (506, 'tak', 'nie', 'nie');
+
+insert into Nosnik(nosnik_id, VHS, DVD, BD, BD_3D) values (600, 'tak', 'tak', 'tak', 'nie');
+insert into Nosnik(nosnik_id, VHS, DVD, BD, BD_3D) values (601, 'nie', 'tak', 'tak', 'nie');
+insert into Nosnik(nosnik_id, VHS, DVD, BD, BD_3D) values (602, 'nie', 'tak', 'tak', 'tak');
+insert into Nosnik(nosnik_id, VHS, DVD, BD, BD_3D) values (603, 'tak', 'tak', 'tak', 'tak');
+insert into Nosnik(nosnik_id, VHS, DVD, BD, BD_3D) values (604, 'tak', 'tak', 'nie', 'nie');
+
+insert into Rezyser(id_rezysera, imie, nazwisko) values (400, 'Chris', 'Columbus');
+insert into Rezyser(id_rezysera, imie, nazwisko) values (401, 'Lana', 'Wachowski');
+insert into Rezyser(id_rezysera, imie, nazwisko) values (402, 'Christopher', 'Nolan');
+insert into Rezyser(id_rezysera, imie, nazwisko) values (403, 'Peter', 'Jackson');
+insert into Rezyser(id_rezysera, imie, nazwisko) values (404, 'James', 'Cameron');
+insert into Rezyser(id_rezysera, imie, nazwisko) values (405, 'Steven', 'Spielberg');
+
+insert into Wytwornia(id_wytworni, panstwo, siedziba) values ('Warner Bros. Pictures', 'Stany Zjednoczone', 'Burbank');
+insert into Wytwornia(id_wytworni, panstwo, siedziba) values ('20th Century Fox', 'Stany Zjednoczone', 'Century City');
+insert into Wytwornia(id_wytworni, panstwo, siedziba) values ('Universal Studios Entertainment', 'Stany Zjednoczone', 'Universal City');
+
+insert into Film(id_filmu, gatunek, rok, kolor, id_rezysera, wersja_id, id_wytworni, nosnik_id) 
+    values('Harry Potter i Komnata Tajemnic', 'Przygodowy', 2002, 'tak', 400, 500, 'Warner Bros. Pictures', 600); 
+
+insert into Film(id_filmu, gatunek, rok, kolor, id_rezysera, wersja_id, id_wytworni, nosnik_id) 
+    values('Matrix', 'Sci-Fi', 1999, 'tak', 401, 501, 'Warner Bros. Pictures', 600); 
+    
+insert into Film(id_filmu, gatunek, rok, kolor, id_rezysera, wersja_id, id_wytworni, nosnik_id) 
+    values('Interstellar', 'Sci-Fi', 2014, 'tak', 402, 501, 'Warner Bros. Pictures', 601); 
+
+insert into Film(id_filmu, gatunek, rok, kolor, id_rezysera, wersja_id, id_wytworni, nosnik_id) 
+    values('Hobbit: Niezwykła Podroz', 'Fantasy', 2012, 'tak', 403, 502, 'Warner Bros. Pictures', 602); 
+
+insert into Film(id_filmu, gatunek, rok, kolor, id_rezysera, wersja_id, id_wytworni, nosnik_id)  
+    values('Avatar', 'Sci-Fi', 2009, 'tak', 404, 503, '20th Century Fox', 602); 
+
+insert into Film(id_filmu, gatunek, rok, kolor, id_rezysera, wersja_id, id_wytworni, nosnik_id) 
+    values('Titanic', 'Melodramat', 1997, 'tak', 404, 501, '20th Century Fox', 600); 
+    
+insert into Film(id_filmu, gatunek, rok, kolor, id_rezysera, wersja_id, id_wytworni, nosnik_id)  
+    values('Kevin sam w domu', 'Komedia', 1990, 'tak', 400, 503, '20th Century Fox', 600); 
+
+insert into Film(id_filmu, gatunek, rok, kolor, id_rezysera, wersja_id, id_wytworni, nosnik_id)  
+    values('Park Jurajski', 'Przygodowy', 1993, 'tak', 405, 501, 'Universal Studios Entertainment', 603);
+    
+insert into Film(id_filmu, gatunek, rok, kolor, id_rezysera, wersja_id, id_wytworni, nosnik_id) 
+    values('E.T.', 'Sci-Fi', 1982, 'tak', 405, 504, 'Universal Studios Entertainment', 604); 
+
+insert into Film(id_filmu, gatunek, rok, kolor, id_rezysera, wersja_id, id_wytworni, nosnik_id) 
+    values('Lista Schindlera', 'Dramat', 1993, 'nie', 405, 505, 'Universal Studios Entertainment', 604); 
+
+insert into Gra(id_gry, gatunek, rok, platforma, wydawca, wersja_id) values('Assassins Creed II', 'Przygodowa', to_date('2009','YYYY'), 'PC', 'Ubisoft', 506);
+insert into Gra(id_gry, gatunek, rok, platforma, wydawca, wersja_id) values ('Grand Theft Auto: San Andreas', 'Akcja', to_date('2004','YYYY'), 'PC', 'Rockstar Games', '506');
+insert into Gra(id_gry, gatunek, rok, platforma, wydawca, wersja_id) values ('Heavy Rain', 'Przygodowa', to_date('2010','YYYY'), 'PS3', 'Sony Computer Entertainment', '500');
+insert into Gra(id_gry, gatunek, rok, platforma, wydawca, wersja_id) values ('The Sims 3', 'Symulator', to_date('2009','YYYY'), 'Xbox 360', 'Electronic Arts', '506');
+
+insert into Wypozyczenie(id_wypozyczenia, data_wypozyczenia, ile_dni, data_zwrotu, id_filmu, id_platnosci, id_klienta)
+    values (sekw_wyp.nextval, to_date('26/09/2011', 'DD/MM/YYYY'), 2, to_date('29/09/2011', 'DD/MM/YYYY'), 'Matrix', 100, 1);
+
+insert into Wypozyczenie(id_wypozyczenia, data_wypozyczenia, ile_dni, data_zwrotu, id_gry, id_platnosci, id_klienta)
+    values (sekw_wyp.nextval, to_date('03/12/2013', 'DD/MM/YYYY'), 14, to_date('17/12/2013', 'DD/MM/YYYY'), 'Heavy Rain', 101, 2);
+
+insert into Wypozyczenie(id_wypozyczenia, data_wypozyczenia, ile_dni, data_zwrotu, id_filmu, id_platnosci, id_klienta)
+    values (sekw_wyp.nextval, to_date('05/12/2013', 'DD/MM/YYYY'), 7, to_date('12/12/2013', 'DD/MM/YYYY'), 'Hobbit: Niezwykła Podroz', 102, 2);
+    
+insert into Wypozyczenie(id_wypozyczenia, data_wypozyczenia, ile_dni, data_zwrotu, id_filmu, id_platnosci, id_klienta)
+    values (sekw_wyp.nextval, to_date('10/12/2015', 'DD/MM/YYYY'), 7, to_date('17/12/2015', 'DD/MM/YYYY'), 'Interstellar', 103, 3);
+    
+insert into Wypozyczenie(id_wypozyczenia, data_wypozyczenia, ile_dni, data_zwrotu, id_filmu, id_platnosci, id_klienta)
+    values (sekw_wyp.nextval, to_date('27/07/2011', 'DD/MM/YYYY'), 2, to_date('29/07/2011', 'DD/MM/YYYY'), 'Avatar', 104, 4);
+    
+insert into Wypozyczenie(id_wypozyczenia, data_wypozyczenia, ile_dni, data_zwrotu, id_gry, id_platnosci, id_klienta)
+    values (sekw_wyp.nextval, to_date('17/04/2014', 'DD/MM/YYYY'), 30, to_date('17/05/2014', 'DD/MM/YYYY'), 'Grand Theft Auto: San Andreas', 105, 5);
+
+insert into Wypozyczenie(id_wypozyczenia, data_wypozyczenia, ile_dni, data_zwrotu, id_filmu, id_platnosci, id_klienta)
+    values (sekw_wyp.nextval, to_date('15/02/2009', 'DD/MM/YYYY'), 7, to_date('27/02/2009', 'DD/MM/YYYY'), 'E.T.', 106, 6);
+
+insert into Wypozyczenie(id_wypozyczenia, data_wypozyczenia, ile_dni, id_gry, id_platnosci, id_klienta)
+    values (sekw_wyp.nextval, to_date('18/07/2010', 'DD/MM/YYYY'), 21, 'Assassins Creed II', 107, 7);
+
+insert into Wypozyczenie(id_wypozyczenia, data_wypozyczenia, ile_dni, data_zwrotu, id_gry, id_filmu, id_platnosci, id_klienta)
+    values (sekw_wyp.nextval, to_date('12/01/2012', 'DD/MM/YYYY'), 14, to_date('26/01/2012', 'DD/MM/YYYY'),'Heavy Rain', 'Park Jurajski', 108, 8);
+
+insert into Wypozyczenie(id_wypozyczenia, data_wypozyczenia, ile_dni, data_zwrotu, id_gry, id_filmu, id_platnosci, id_klienta)
+    values (sekw_wyp.nextval, to_date('01/01/2016', 'DD/MM/YYYY'), 14, to_date('15/01/2016', 'DD/MM/YYYY'),'The Sims 3', 'Titanic', 109, 6);
+
+____________________________________________________________________
+
+drop sequence sekw_wyp;
+drop trigger wyzw_wyp;
+drop trigger wyzw_przedl;
+drop trigger wyzw_zwr;
+
+drop table Wypozyczenie;
+drop table Klient;
+drop table oplata;
+drop table gra;
+drop table film;
+drop table wersja;
+drop table nosnik;
+drop table rezyser;
+drop table wytwornia;
+drop view view_wyp;
+
+__________________________________________________________________
+1. Utworzenie perspektywy, która pozwala zarządzać terminem związanym z wypożyczeniem. Zilustrowane działanie wyzwalacza wyzw_przedl poprzez użycie polecenia update.
+
+create view view_wyp as select id_wypozyczenia, data_wypozyczenia, ile_dni, data_zwrotu from wypozyczenie;
+select * from view_wyp;
+
+update view_wyp
+set ile_dni=21, data_zwrotu = to_date('22/01/2016', 'DD/MM/YYYY')
+where id_wypozyczenia=19;
+
+
+2. Wypisać imie i nazwisko osób, które wypożyczyły jednocześnie film i grę
+
+select imie, nazwisko from klient natural join wypozyczenie where id_gry is not null and id_filmu is not null;
+
+3. Jeśli dany reżyser robił filmy dla różnych wytwórni, to wypisać jego imię i nazwisko oraz nazwy tych wytwórni.
+
+select imie, nazwisko, id_wytworni from film natural join rezyser where id_rezysera 
+    in(select r.id_rezysera from film r join film w on r.id_rezysera = w.id_rezysera and r.id_wytworni <> w.id_wytworni);
+
+4. Wypisać wszystkie filmy z dubbingiem
+
+select id_filmu "Filmy z dubbingiem" from film natural join wersja where dubbing='tak';
+
+
+5. Nazwisko, numer telefonu i kwota do zapłaty (kara) osób, które mają naliczoną karę.
+
+select nazwisko, tel, kara from wypozyczenie natural join klient natural join oplata where kara<>0;
